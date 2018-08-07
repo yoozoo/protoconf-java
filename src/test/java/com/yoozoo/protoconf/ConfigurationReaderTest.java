@@ -14,9 +14,10 @@ public class ConfigurationReaderTest {
         ConfigurationReader configurationReader = new ConfigurationReader(new EtcdReader());
 
         configurationReader.setValue("/PROD/test/msg/id", "1");
-        configurationReader.setValue("/PROD/test/name", "testName");
+    //    configurationReader.setValue("/PROD/test/name", "testName");
         assertTrue(configurationReader.config(Configuration.instance()));
 
+        System.out.println("name current is : " + Configuration.instance().get_name());
         Configuration.instance().watch_name(new ChangeListener() {
             @Override
             public void onChange(String newValue) {
@@ -32,10 +33,10 @@ public class ConfigurationReaderTest {
         });
 
         configurationReader.watchKeys(Configuration.instance());
-
+        Thread.sleep(1000);
         configurationReader.setValue("/PROD/test/name", "testName2");
 
         configurationReader.setValue("/PROD/test/msg/id", "3");
-
+        Thread.sleep(1000);
     }
 }

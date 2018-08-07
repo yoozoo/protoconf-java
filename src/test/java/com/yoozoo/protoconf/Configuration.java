@@ -59,6 +59,24 @@ public class Configuration implements ConfigurationInterface, WatchKeyInterface 
             return false;
         }
     }
+    public String getDefaultValue(String key)
+    {
+        switch(key)
+        { 
+        case "id":
+            return "23";
+        default:
+            String[] keys = key.split("/", 2);
+            if(keys.length >= 2) {
+                key = keys[0];
+                String innerKey = keys[1];
+                switch(key) { 
+                }
+            }
+        }
+        return null;
+    }
+    
 
     }
  
@@ -137,5 +155,24 @@ public class Configuration implements ConfigurationInterface, WatchKeyInterface 
             return false;
         }
     }
-
+    public String getDefaultValue(String key)
+    {
+        switch(key)
+        { 
+        case "name":
+            return "123";
+        default:
+            String[] keys = key.split("/", 2);
+            if(keys.length >= 2) {
+                key = keys[0];
+                String innerKey = keys[1];
+                switch(key) { 
+                    case "msg":
+                        return msg.getDefaultValue(innerKey);
+                }
+            }
+        }
+        return null;
+    }
+    
 }

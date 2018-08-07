@@ -10,6 +10,8 @@ public interface ConfigurationInterface {
     String[] validKeys();
 //    set values inside the java config class
     boolean setValue(String key, String value);
+//    get default values from the java config class
+    String getDefaultValue(String key);
 // get watching key list
     Set<String> getWatchList();
 // add key change to the change list

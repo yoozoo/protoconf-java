@@ -33,12 +33,16 @@ public class ConfigurationReader {
         Map<String, String> v = kv_reader.getValues(appName, keys);
 
         for (Map.Entry<String, String> entry : v.entrySet()) {
-            if (entry.getValue() == null) {
+            String value = entry.getValue();
+            if(value ==null) {
+                value = data.getDefaultValue(entry.getKey());
+            }
+            if (value == null) {
 //                failed to found value
                 LOGGER.error("failed to found value for key: " + entry.getKey());
                 return false;
             }
-            if (!data.setValue(entry.getKey(), entry.getValue())) {
+            if (!data.setValue(entry.getKey(), value)) {
 //                failed to set value
                 LOGGER.error("failed to set value for key: " + entry.getKey());
                 return false;
