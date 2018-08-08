@@ -17,49 +17,55 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.nio.charset.Charset;
 
 public class EtcdReader implements ConfigurationReader.KVReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtcdReader.class);
+    private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private String envkey;
     Client client;
 
+    private void init (String urls, String userName, String password, String envkey)
+    {
+        this.envkey = "/" + envkey;
+        String[] endpoints = urls.split(",");
+        // create and authenticate etcd client
+        client = Client.builder().user(ByteSequence.fromBytes(userName.getBytes(UTF8_CHARSET))).password(ByteSequence.fromBytes(password.getBytes(UTF8_CHARSET))).endpoints(endpoints).build();
+
+    }
+
     public EtcdReader() {
         try {
-//            getting etcd client username and password and endpoints from env var
+            // getting etcd client username and password and endpoints from env var
             String userName = System.getenv("etcd_user").split(":")[0];
             String password = System.getenv("etcd_user").split(":")[1];
             String endpoints = System.getenv("etcd_endpoints");
-            envkey = "/" + System.getenv("etcd_envkey");
-            client = Client.builder().user(ByteSequence.fromString(userName)).password(ByteSequence.fromString(password)).endpoints(endpoints).build();
-
+            init(endpoints, userName, password, System.getenv("etcd_envkey"));
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
         }
-
     }
 
-    //  client auth is on
-    public EtcdReader(String url, String userName, String password) {
+    // client auth by take parameters from outside
+    public EtcdReader(String urls, String userName, String password, String envkey) {
         try {
-            //      create and authenticate etcd client
-            client = Client.builder().user(ByteSequence.fromString(userName)).password(ByteSequence.fromString(password)).endpoints(url).build();
-
+            init(urls, userName, password, envkey);
         } catch (Exception e) {
-//            failed to authenticate
+            // failed to authenticate
             LOGGER.error(e.getLocalizedMessage());
         }
 
     }
 
-    //    get all key-values pairs for an application
+    // get all key-values pairs for an application
     public Map<String, String> getValues(String appName, String[] keys) {
         try {
             appName = "/" + appName;
-//            initiate a transaction
+            // initiate a transaction
             Txn txn = client.getKVClient().txn();
             for (String key : keys) {
-//                for each keys retrieved from config class, get the value from etcd client
-                txn = txn.Then(Op.get(ByteSequence.fromString( envkey  + appName + "/" + key), GetOption.DEFAULT));
+                // for each keys retrieved from config class, get the value from etcd client
+                txn = txn.Then(Op.get(ByteSequence.fromBytes((envkey  + appName + "/" + key).getBytes(UTF8_CHARSET)), GetOption.DEFAULT));
             }
             List<GetResponse> responses = txn.commit().get().getGetResponses();
 
@@ -70,7 +76,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
 
             for (GetResponse response : responses) {
                 if (response.getCount() == 1) {
-//                    if the value can be found, put the value in the result map
+                    // if the value can be found, put the value in the result map
                     KeyValue kv = response.getKvs().get(0);
                     result.replace(kv.getKey().toStringUtf8().substring((envkey + appName + "/").length()), kv.getValue().toStringUtf8());
                 }
@@ -83,12 +89,12 @@ public class EtcdReader implements ConfigurationReader.KVReader {
         return null;
     }
 
-    //    put a value to a key (not used for fow)
+    // put a value to a key (not used for fow)
     public void setValue(String key, String value) {
         try {
             client.getKVClient().put(
-                    ByteSequence.fromString(key),
-                    ByteSequence.fromString(value)
+                    ByteSequence.fromBytes(key.getBytes(UTF8_CHARSET)),
+                    ByteSequence.fromBytes(value.getBytes(UTF8_CHARSET))
             ).get();
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,11 +102,11 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     }
 
 
-    //  get a value for a key
+    // get a value for a key
     public String getValue(String key) {
         try {
-// get String value
-            GetResponse getResponse = client.getKVClient().get(ByteSequence.fromString(key)).get();
+            // get String value
+            GetResponse getResponse = client.getKVClient().get(ByteSequence.fromBytes(key.getBytes(UTF8_CHARSET))).get();
             if (getResponse.getKvs().isEmpty()) {
                 // key does not exist
                 return null;
@@ -114,15 +120,15 @@ public class EtcdReader implements ConfigurationReader.KVReader {
         return null;
     }
 
-    //    watch value updates and change accordingly
+    // watch value updates and change accordingly
     public void watchKeys(ConfigurationInterface data) {
-//        start a thread to watch key prefix with app name
+        // start a thread to watch key prefix with app name
         new Thread(() -> {
             String appName = "/" + data.applicationName();
             Watcher watcher = null;
             try {
-                WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromString(envkey + appName + "/")).build();
-                watcher = client.getWatchClient().watch(ByteSequence.fromString(""), watchOption);
+                WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromBytes((envkey + appName + "/").getBytes(UTF8_CHARSET))).build();
+                watcher = client.getWatchClient().watch(ByteSequence.fromBytes(("").getBytes(UTF8_CHARSET)), watchOption);
 
                 while (true) {
                     Map<String, String> changeMap = new HashMap<>();
@@ -151,7 +157,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     @Override
     public Map<String, String> getValueWithPrefix(String prefix) {
         try {
-            GetResponse getResponse = client.getKVClient().get(ByteSequence.fromString(prefix), GetOption.newBuilder().withPrefix(ByteSequence.fromString(prefix)).build()).get();
+            GetResponse getResponse = client.getKVClient().get(ByteSequence.fromBytes(prefix.getBytes(UTF8_CHARSET)), GetOption.newBuilder().withPrefix(ByteSequence.fromBytes(prefix.getBytes(UTF8_CHARSET))).build()).get();
             if (getResponse.getKvs().isEmpty()) {
                 // key does not exist
                 return null;
@@ -162,7 +168,6 @@ public class EtcdReader implements ConfigurationReader.KVReader {
             for(KeyValue keyValue: keyValueList) {
                 keyValues.put(keyValue.getKey().toStringUtf8(), keyValue.getValue().toStringUtf8());
             }
-
             return keyValues;
         }catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());

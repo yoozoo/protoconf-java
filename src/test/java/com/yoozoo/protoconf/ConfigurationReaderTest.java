@@ -14,8 +14,10 @@ public class ConfigurationReaderTest {
         ConfigurationReader configurationReader = new ConfigurationReader(new EtcdReader());
 
         configurationReader.setValue("/PROD/test/msg/id", "1");
-    //    configurationReader.setValue("/PROD/test/name", "testName");
+        configurationReader.setValue("/PROD/测试/名字", "测试名字");
         assertTrue(configurationReader.config(Configuration.instance()));
+
+        assertTrue(configurationReader.getValue("/PROD/测试/名字").compareTo("测试名字")==0);
 
         System.out.println("name current is : " + Configuration.instance().get_name());
         Configuration.instance().watch_name(new ChangeListener() {
