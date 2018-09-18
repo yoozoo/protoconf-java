@@ -41,4 +41,18 @@ public class ConfigurationReaderTest {
         configurationReader.setValue("/PROD/test/msg/id", "3");
         Thread.sleep(1000);
     }
+
+    @Test
+    public void testAgent() {
+        //        Test protoagent connection
+        String appToken = "U2FsdGVkX1+EGNROfb41wAhtOumHKQPkli1FEL54C/U=";
+        String env = "default";
+        ConfigurationReader configurationReader = new ConfigurationReader(new EtcdReader(appToken, env));
+        configurationReader.setValue("/default/测试平台-测试服务/dbHost", "localhost");
+        configurationReader.setValue("/default/测试平台-测试服务/dbPort", "3306");
+        configurationReader.setValue("/default/测试平台-测试服务/dbName", "testDB");
+        configurationReader.setValue("/default/测试平台-测试服务/routerMapMhyy", "none");
+
+        assertTrue(configurationReader.config(Configuration1.instance()));
+    }
 }

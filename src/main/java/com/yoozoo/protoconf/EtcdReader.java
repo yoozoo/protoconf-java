@@ -23,24 +23,50 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(EtcdReader.class);
     private static final Charset UTF8_CHARSET = Charset.forName("UTF-8");
     private String envkey;
+    private String userName;
+    private String password;
+    private String[] endpoints;
     Client client;
 
-    private void init (String urls, String userName, String password, String envkey)
+    private void init ()
     {
-        this.envkey = "/" + envkey;
-        String[] endpoints = urls.split(",");
         // create and authenticate etcd client
-        client = Client.builder().user(ByteSequence.fromBytes(userName.getBytes(UTF8_CHARSET))).password(ByteSequence.fromBytes(password.getBytes(UTF8_CHARSET))).endpoints(endpoints).build();
-
+        client = Client.builder().user(ByteSequence.fromBytes(userName.getBytes(UTF8_CHARSET)))
+                .password(ByteSequence.fromBytes(password.getBytes(UTF8_CHARSET)))
+                .endpoints(endpoints).build();
     }
 
+//    connect etcd with environment variable config
     public EtcdReader() {
         try {
             // getting etcd client username and password and endpoints from env var
-            String userName = System.getenv("etcd_user").split(":")[0];
-            String password = System.getenv("etcd_user").split(":")[1];
-            String endpoints = System.getenv("etcd_endpoints");
-            init(endpoints, userName, password, System.getenv("etcd_envkey"));
+            String etcdUser = System.getenv("etcd_user");
+//            check etcd config in env
+            if (etcdUser != null && etcdUser.matches("\\w+:\\w+")) {
+                userName = System.getenv("etcd_user").split(":")[0];
+                password = System.getenv("etcd_user").split(":")[1];
+                endpoints = System.getenv("etcd_endpoints").split(",");
+                envkey = "/" + System.getenv("etcd_envkey");
+//                init etcd connection
+                init();
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getLocalizedMessage());
+        }
+    }
+//    TODO: connect etcd with protoagent
+    public EtcdReader(String appToken, String env) {
+        try {
+//            connect to protoagent
+            AgentApplicationServiceClient agent = new AgentApplicationServiceClient(appToken, env);
+//            retrieve etcd config
+            AgentApplicationServiceOuterClass.LogonInfoResponse resp = agent.getEtcdConfig();
+            userName = resp.getUser();
+            password = resp.getPassword();
+            endpoints = resp.getEndpoints().split(",");
+            envkey = "/" + env;
+
+            init();
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
         }
@@ -49,7 +75,11 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     // client auth by take parameters from outside
     public EtcdReader(String urls, String userName, String password, String envkey) {
         try {
-            init(urls, userName, password, envkey);
+            endpoints = urls.split(",");
+            this.userName = userName;
+            this.envkey = "/" + envkey;
+            this.password = password;
+            init();
         } catch (Exception e) {
             // failed to authenticate
             LOGGER.error(e.getLocalizedMessage());
