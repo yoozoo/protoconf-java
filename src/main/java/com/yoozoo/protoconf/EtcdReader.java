@@ -29,68 +29,60 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     private String appToken;
     Client client;
 
-//    connect to etcd server
-    public void connect()
-    {
-        try {
-            String env = System.getenv("etcd_envkey");
-            if (env == null || env.isEmpty()) {
+    //    connect to etcd server
+    private void connect() {
+        if (client == null) {
+            try {
+                String env = System.getenv("etcd_envkey");
+                if (env == null || env.isEmpty()) {
 //            default env
-                env = "default";
-            }
-            envkey = "/" + env;
-//        check from env var
-            if (userName == null || password == null || endpoints == null) {
-//            set config from protoagent
-                if (appToken != null) {
-                    setConfigWithProtoagent(appToken, env);
-                } else {
-//                default etcd config
-                    userName = "root";
-                    password = "root";
-                    endpoints = new String[]{"http://localhost:2379"};
+                    env = "default";
                 }
+                envkey = "/" + env;
+//        check from env var
+                if (userName == null || password == null || endpoints == null) {
+//            set config from protoagent
+                    if (appToken != null) {
+                        setConfigWithProtoagent(appToken, env);
+                    } else {
+//                default etcd config
+                        userName = "root";
+                        password = "root";
+                        endpoints = new String[]{"http://localhost:2379"};
+                    }
+                }
+                // create and authenticate etcd client
+                client = Client.builder().user(ByteSequence.fromBytes(userName.getBytes(UTF8_CHARSET)))
+                        .password(ByteSequence.fromBytes(password.getBytes(UTF8_CHARSET)))
+                        .endpoints(endpoints).build();
+            } catch (Exception e) {
+                LOGGER.error(e.getLocalizedMessage());
             }
-            // create and authenticate etcd client
-            client = Client.builder().user(ByteSequence.fromBytes(userName.getBytes(UTF8_CHARSET)))
-                    .password(ByteSequence.fromBytes(password.getBytes(UTF8_CHARSET)))
-                    .endpoints(endpoints).build();
-        } catch (Exception e) {
-            LOGGER.error(e.getLocalizedMessage());
         }
     }
 
     //    default constructor
     public EtcdReader() {
-        try {
-            // getting etcd client username and password and endpoints from env var
-            String etcdUser = System.getenv("etcd_user");
+        // getting etcd client username and password and endpoints from env var
+        String etcdUser = System.getenv("etcd_user");
 //            check etcd config in env
-            if (etcdUser != null && etcdUser.matches("\\w+:\\w+")) {
-                userName = System.getenv("etcd_user").split(":")[0];
-                password = System.getenv("etcd_user").split(":")[1];
-                endpoints = System.getenv("etcd_endpoints").split(",");
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getLocalizedMessage());
+        if (etcdUser != null && etcdUser.matches("\\w+:\\w+")) {
+            userName = System.getenv("etcd_user").split(":")[0];
+            password = System.getenv("etcd_user").split(":")[1];
+            endpoints = System.getenv("etcd_endpoints").split(",");
         }
     }
 
     // client auth by take parameters from outside
     public EtcdReader(String endpoints, String userName, String password) {
-        try {
-            this.endpoints = endpoints.split(",");
-            this.userName = userName;
-            this.password = password;
-        } catch (Exception e) {
-            // failed to authenticate
-            LOGGER.error(e.getLocalizedMessage());
-        }
+        this.endpoints = endpoints.split(",");
+        this.userName = userName;
+        this.password = password;
 
     }
 
     //    set config with protoagent
-    private void setConfigWithProtoagent (String appToken, String env) {
+    private void setConfigWithProtoagent(String appToken, String env) {
         try {
 //            connect to protoagent
             AgentApplicationServiceClient agent = new AgentApplicationServiceClient(appToken, env);
@@ -108,12 +100,13 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     // get all key-values pairs for an application
     public Map<String, String> getValues(String appName, String[] keys) {
         try {
+            connect();
             appName = "/" + appName;
             // initiate a transaction
             Txn txn = client.getKVClient().txn();
             for (String key : keys) {
                 // for each keys retrieved from config class, get the value from etcd client
-                txn = txn.Then(Op.get(ByteSequence.fromBytes((envkey  + appName + "/" + key).getBytes(UTF8_CHARSET)), GetOption.DEFAULT));
+                txn = txn.Then(Op.get(ByteSequence.fromBytes((envkey + appName + "/" + key).getBytes(UTF8_CHARSET)), GetOption.DEFAULT));
             }
             List<GetResponse> responses = txn.commit().get().getGetResponses();
 
@@ -140,6 +133,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     // put a value to a key (not used for fow)
     public void setValue(String key, String value) {
         try {
+            connect();
             client.getKVClient().put(
                     ByteSequence.fromBytes(key.getBytes(UTF8_CHARSET)),
                     ByteSequence.fromBytes(value.getBytes(UTF8_CHARSET))
@@ -153,6 +147,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     // get a value for a key
     public String getValue(String key) {
         try {
+            connect();
             // get String value
             GetResponse getResponse = client.getKVClient().get(ByteSequence.fromBytes(key.getBytes(UTF8_CHARSET))).get();
             if (getResponse.getKvs().isEmpty()) {
@@ -175,6 +170,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
             String appName = "/" + data.applicationName();
             Watcher watcher = null;
             try {
+                connect();
                 WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromBytes((envkey + appName + "/").getBytes(UTF8_CHARSET))).build();
                 watcher = client.getWatchClient().watch(ByteSequence.fromBytes(("").getBytes(UTF8_CHARSET)), watchOption);
 
@@ -188,7 +184,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
                         }
                     }
 
-                    for(Map.Entry<String, String> entry: changeMap.entrySet()) {
+                    for (Map.Entry<String, String> entry : changeMap.entrySet()) {
                         data.addKeyChange(entry.getKey(), entry.getValue());
                     }
                 }
@@ -205,6 +201,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     @Override
     public Map<String, String> getValueWithPrefix(String prefix) {
         try {
+            connect();
             GetResponse getResponse = client.getKVClient().get(ByteSequence.fromBytes(prefix.getBytes(UTF8_CHARSET)), GetOption.newBuilder().withPrefix(ByteSequence.fromBytes(prefix.getBytes(UTF8_CHARSET))).build()).get();
             if (getResponse.getKvs().isEmpty()) {
                 // key does not exist
@@ -213,11 +210,11 @@ public class EtcdReader implements ConfigurationReader.KVReader {
             Map<String, String> keyValues = new HashMap<>();
             List<KeyValue> keyValueList = getResponse.getKvs();
 
-            for(KeyValue keyValue: keyValueList) {
+            for (KeyValue keyValue : keyValueList) {
                 keyValues.put(keyValue.getKey().toStringUtf8(), keyValue.getValue().toStringUtf8());
             }
             return keyValues;
-        }catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
         }
         return null;

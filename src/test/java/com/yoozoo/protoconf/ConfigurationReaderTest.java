@@ -13,8 +13,6 @@ public class ConfigurationReaderTest {
     @Test
     public void testConfig() throws InterruptedException {
         EtcdReader etcdReader = new EtcdReader();
-//        connect to etcd
-        etcdReader.connect();
         ConfigurationReader configurationReader = new ConfigurationReader(etcdReader);
 
         configurationReader.setValue("/default/test/msg/id", "1");
@@ -57,7 +55,6 @@ public class ConfigurationReaderTest {
         String appToken = "U2FsdGVkX1+EGNROfb41wAhtOumHKQPkli1FEL54C/U=";
         EtcdReader etcdReader = new EtcdReader();
         etcdReader.setAppToken(appToken);
-        etcdReader.connect();
         ConfigurationReader configurationReader = new ConfigurationReader(etcdReader);
         configurationReader.setValue("/default/测试平台-测试服务/dbHost", "localhost");
         assertEquals(configurationReader.getValue("/default/测试平台-测试服务/dbHost"), "localhost");
