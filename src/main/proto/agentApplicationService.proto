@@ -1,0 +1,26 @@
+syntax="proto3";
+
+package agentApplicationService;
+option java_package = "com.yoozoo.protoconf";
+
+message LogonInfoRequest {
+	// token is private key encrypted, can embed in code
+	// including app_name, do we need serial_number for kicking out the invalid one?
+	string app_token = 1;
+	string env = 2;
+}
+
+message LogonInfoResponse {
+	string user = 1;
+	string password = 2;
+	string endpoints = 3;
+	string app_name = 4;
+}
+
+service AgentApplicationService {
+	rpc getLogonInfo (LogonInfoRequest) returns (LogonInfoResponse){}
+}
+
+message LogonError {
+	string detail = 1;
+}
