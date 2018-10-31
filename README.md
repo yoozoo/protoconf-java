@@ -10,6 +10,15 @@ Java 8 or above is required.
 
 ### Maven
 
+Download protoconf-java jar from [Release] (https://github.com/yoozoo/protoconf-java/releases)
+Install protoconf-java jar to local maven repository
+
+```bash
+mvn install:install-file -Dfile=<path-to-jar>
+```
+
+Add dependency to Pom.xml
+
 ```xml
 <dependency>
   <groupId>com.yoozoo.protoconf</groupId>
@@ -29,7 +38,7 @@ etcdReader.setAppToken(appToken);
 // connect to etcd
 ConfigurationReader configurationReader = new ConfigurationReader(etcdReader);
 
-// fill in config values
+// fill in etcd values to config instance
 configurationReader.config(Configuration.instance());
 
 // watch config changes
@@ -40,4 +49,9 @@ Configuration.instance().watch_name(new ChangeListener() {
     }
 });
 configurationReader.watchKeys(Configuration.instance());
+
+// get config value
+dataSource.setUrl(Configuration.instance().get_mysqlDsn());
+dataSource.setUsername(Configuration.instance().get_username());
+dataSource.setPassword(Configuration.instance().get_password());
 ```
