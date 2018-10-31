@@ -91,6 +91,13 @@ public class EtcdReader implements ConfigurationReader.KVReader {
             userName = resp.getUser();
             password = resp.getPassword();
             endpoints = resp.getEndpoints().split(",");
+//            add default endpoint protocol as http:// if no protocol present in endpoint
+            String pattern = "http(s?):\\/\\/.+";
+            for(int i=0; i< endpoints.length; i++) {
+                if (!endpoints[i].matches(pattern)) {
+                    endpoints[i]  = "http://" + endpoints[i];
+                }
+            }
 
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
