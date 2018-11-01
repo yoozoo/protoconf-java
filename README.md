@@ -1,4 +1,6 @@
 # protoconf-java - A Java SDK for protoconf
+[![License](https://img.shields.io/badge/Licence-Apache%202.0-blue.svg?style=flat-square)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![GitHub release](https://img.shields.io/github/release/yoozoo/protoconf-java.svg?style=flat-square)](https://github.com/yoozoo/protoconf-java/releases)
 
 protoconf-java is the java sdk for [protoconf](https://github.com/yoozoo/protoconf) .
 
@@ -55,3 +57,7 @@ dataSource.setUrl(Configuration.instance().get_mysqlDsn());
 dataSource.setUsername(Configuration.instance().get_username());
 dataSource.setPassword(Configuration.instance().get_password());
 ```
+
+## License
+
+protoconf-java is under the Apache 2.0 license. See the [LICENSE](https://github.com/yoozoo/protoconf-java/master/LICENSE) file for details.
