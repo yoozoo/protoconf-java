@@ -12,6 +12,34 @@
     <url>https://github.com/yoozoo/protoconf-java</url>
     <packaging>pom</packaging>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Zhao Haitao</name>
+            <email>zhaoht@yoozoo.com</email>
+            <organization>yoozoo</organization>
+            <organizationUrl>http://yoozoo.com/</organizationUrl>
+        </developer>
+        <developer>
+            <name>Hongbo Wu</name>
+            <email>wuhongbo@yoozoo.com</email>
+            <organization>yoozoo</organization>
+            <organizationUrl>http://yoozoo.com/</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/yoozoo/protoconf-java.git</connection>
+        <developerConnection>scm:git:https://github.com/yoozoo/protoconf-java.git</developerConnection>
+        <url>https://github.com/yoozoo/protoconf-java.git</url>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -96,6 +124,20 @@
                             <id>attach-javadocs</id>
                             <goals>
                                 <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.5</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
                             </goals>
                         </execution>
                     </executions>
