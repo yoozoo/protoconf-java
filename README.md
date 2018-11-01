@@ -12,14 +12,7 @@ Java 8 or above is required.
 
 ### Maven
 
-Download protoconf-java jar from [Release] (https://github.com/yoozoo/protoconf-java/releases)
-Install protoconf-java jar to local maven repository
-
-```bash
-mvn install:install-file -Dfile=<path-to-jar>
-```
-
-Add dependency to Pom.xml
+Add dependency to pom.xml
 
 ```xml
 <dependency>
