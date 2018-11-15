@@ -171,38 +171,38 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     }
 
     // watch value updates and change accordingly
-    public void watchKeys(ConfigurationInterface data) {
-        // start a thread to watch key prefix with app name
-        new Thread(() -> {
-            String appName = "/" + data.applicationName();
-            Watcher watcher = null;
-            try {
-                connect();
-                WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromBytes((envkey + appName + "/").getBytes(UTF8_CHARSET))).build();
-                watcher = client.getWatchClient().watch(ByteSequence.fromBytes(("").getBytes(UTF8_CHARSET)), watchOption);
+    public synchronized void watchKeys(ConfigurationInterface data) {
+            // start a thread to watch key prefix with app name
+            new Thread(() -> {
+                String appName = "/" + data.applicationName();
+                Watcher watcher = null;
+                try {
+                    connect();
+                    WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromBytes((envkey + appName + "/").getBytes(UTF8_CHARSET))).build();
+                    watcher = client.getWatchClient().watch(ByteSequence.fromBytes(("").getBytes(UTF8_CHARSET)), watchOption);
 
-                while (true) {
-                    Map<String, String> changeMap = new HashMap<>();
+                    while (true) {
+                        Map<String, String> changeMap = new HashMap<>();
 
-                    WatchResponse response = watcher.listen();
-                    for (WatchEvent event : response.getEvents()) {
-                        if (event.getEventType().equals(WatchEvent.EventType.PUT)) {
-                            changeMap.put(event.getKeyValue().getKey().toStringUtf8().substring((envkey + appName + "/").length()), event.getKeyValue().getValue().toStringUtf8());
+                        WatchResponse response = watcher.listen();
+                        for (WatchEvent event : response.getEvents()) {
+                            if (event.getEventType().equals(WatchEvent.EventType.PUT)) {
+                                changeMap.put(event.getKeyValue().getKey().toStringUtf8().substring((envkey + appName + "/").length()), event.getKeyValue().getValue().toStringUtf8());
+                            }
+                        }
+
+                        for (Map.Entry<String, String> entry : changeMap.entrySet()) {
+                            data.addKeyChange(entry.getKey(), entry.getValue());
                         }
                     }
 
-                    for (Map.Entry<String, String> entry : changeMap.entrySet()) {
-                        data.addKeyChange(entry.getKey(), entry.getValue());
+                } catch (Exception e) {
+                    if (watcher != null) {
+                        watcher.close();
                     }
+                    LOGGER.error(e.getLocalizedMessage());
                 }
-
-            } catch (Exception e) {
-                if (watcher != null) {
-                    watcher.close();
-                }
-                LOGGER.error(e.getLocalizedMessage());
-            }
-        }).start();
+            }).start();
     }
 
     @Override

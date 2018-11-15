@@ -6,7 +6,7 @@
 
     <groupId>com.yoozoo.protoconf</groupId>
     <artifactId>protoconf-java</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <name>protoconf-java</name>
     <description>Java SDK for protoconf</description>
     <url>https://github.com/yoozoo/protoconf-java</url>
@@ -48,6 +48,19 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>4.2.2.RELEASE</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>4.2.2.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
         <!--java etcd lib-->
         <dependency>
             <groupId>com.coreos</groupId>
