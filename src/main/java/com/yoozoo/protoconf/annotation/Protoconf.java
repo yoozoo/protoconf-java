@@ -1,4 +1,4 @@
-package com.yoozoo.protoconf;
+package com.yoozoo.protoconf.annotation;
 
 import java.lang.annotation.*;
 

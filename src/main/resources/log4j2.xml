@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Log config file for etcd java sdk-->
-<com.yoozoo.protoconf.com.yoozoo.protoconf.Configuration status="INFO">
+<com.yoozoo.protoconf status="INFO">
     <Appenders>
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS}|%-5level|%c{1} - %msg%n" />
@@ -11,4 +11,4 @@
             <AppenderRef ref="STDOUT" />
         </Root>
     </Loggers>
-</com.yoozoo.protoconf.com.yoozoo.protoconf.Configuration>
+</com.yoozoo.protoconf>

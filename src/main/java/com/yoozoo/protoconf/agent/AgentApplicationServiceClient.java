@@ -1,4 +1,4 @@
-package com.yoozoo.protoconf;
+package com.yoozoo.protoconf.agent;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

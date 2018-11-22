@@ -1,5 +1,8 @@
-package com.yoozoo.protoconf;
+package com.yoozoo.protoconf.annotation;
 
+import com.yoozoo.protoconf.reader.ConfigurationInterface;
+import com.yoozoo.protoconf.reader.ConfigurationReader;
+import com.yoozoo.protoconf.reader.EtcdReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;

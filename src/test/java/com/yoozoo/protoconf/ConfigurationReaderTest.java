@@ -1,13 +1,13 @@
 package com.yoozoo.protoconf;
 
-import com.yoozoo.protoconf.ChangeListener;
-import com.yoozoo.protoconf.ConfigurationReader;
-import com.yoozoo.protoconf.EtcdReader;
+import com.yoozoo.protoconf.annotation.Protoconf;
+import com.yoozoo.protoconf.reader.ChangeListener;
+import com.yoozoo.protoconf.reader.ConfigurationReader;
+import com.yoozoo.protoconf.reader.EtcdReader;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 

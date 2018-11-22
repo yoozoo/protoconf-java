@@ -1,4 +1,4 @@
-package com.yoozoo.protoconf;
+package com.yoozoo.protoconf.annotation;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;

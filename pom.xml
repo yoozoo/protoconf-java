@@ -6,7 +6,7 @@
 
     <groupId>com.yoozoo.protoconf</groupId>
     <artifactId>protoconf-java</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.2-SNAPSHOT</version>
     <name>protoconf-java</name>
     <description>Java SDK for protoconf</description>
     <url>https://github.com/yoozoo/protoconf-java</url>
@@ -60,6 +60,11 @@
             <version>4.2.2.RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <!-- for spring cloud config-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
 
         <!--java etcd lib-->
         <dependency>
@@ -91,6 +96,18 @@
             <version>2.7</version>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Finchley.SR2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>

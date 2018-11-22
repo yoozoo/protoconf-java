@@ -1,19 +1,12 @@
-package com.yoozoo.protoconf;
+package com.yoozoo.protoconf.agent;
 
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
 import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
 import static io.grpc.stub.ClientCalls.futureUnaryCall;
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
 
 /**
  */
@@ -28,16 +21,16 @@ public final class AgentApplicationServiceGrpc {
 
   // Static method descriptors that strictly reflect the proto.
   @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
-  public static final io.grpc.MethodDescriptor<com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest,
-      com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse> METHOD_GET_LOGON_INFO =
-      io.grpc.MethodDescriptor.<com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest, com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse>newBuilder()
+  public static final io.grpc.MethodDescriptor<AgentApplicationServiceOuterClass.LogonInfoRequest,
+      AgentApplicationServiceOuterClass.LogonInfoResponse> METHOD_GET_LOGON_INFO =
+      io.grpc.MethodDescriptor.<AgentApplicationServiceOuterClass.LogonInfoRequest, AgentApplicationServiceOuterClass.LogonInfoResponse>newBuilder()
           .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
           .setFullMethodName(generateFullMethodName(
               "agentApplicationService.AgentApplicationService", "getLogonInfo"))
           .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-              com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest.getDefaultInstance()))
+              AgentApplicationServiceOuterClass.LogonInfoRequest.getDefaultInstance()))
           .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-              com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse.getDefaultInstance()))
+              AgentApplicationServiceOuterClass.LogonInfoResponse.getDefaultInstance()))
           .build();
 
   /**
@@ -69,8 +62,8 @@ public final class AgentApplicationServiceGrpc {
 
     /**
      */
-    public void getLogonInfo(com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest request,
-        io.grpc.stub.StreamObserver<com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse> responseObserver) {
+    public void getLogonInfo(AgentApplicationServiceOuterClass.LogonInfoRequest request,
+                             io.grpc.stub.StreamObserver<AgentApplicationServiceOuterClass.LogonInfoResponse> responseObserver) {
       asyncUnimplementedUnaryCall(METHOD_GET_LOGON_INFO, responseObserver);
     }
 
@@ -80,8 +73,8 @@ public final class AgentApplicationServiceGrpc {
             METHOD_GET_LOGON_INFO,
             asyncUnaryCall(
               new MethodHandlers<
-                com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest,
-                com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse>(
+                AgentApplicationServiceOuterClass.LogonInfoRequest,
+                AgentApplicationServiceOuterClass.LogonInfoResponse>(
                   this, METHODID_GET_LOGON_INFO)))
           .build();
     }
@@ -107,8 +100,8 @@ public final class AgentApplicationServiceGrpc {
 
     /**
      */
-    public void getLogonInfo(com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest request,
-        io.grpc.stub.StreamObserver<com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse> responseObserver) {
+    public void getLogonInfo(AgentApplicationServiceOuterClass.LogonInfoRequest request,
+                             io.grpc.stub.StreamObserver<AgentApplicationServiceOuterClass.LogonInfoResponse> responseObserver) {
       asyncUnaryCall(
           getChannel().newCall(METHOD_GET_LOGON_INFO, getCallOptions()), request, responseObserver);
     }
@@ -134,7 +127,7 @@ public final class AgentApplicationServiceGrpc {
 
     /**
      */
-    public com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse getLogonInfo(com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest request) {
+    public AgentApplicationServiceOuterClass.LogonInfoResponse getLogonInfo(AgentApplicationServiceOuterClass.LogonInfoRequest request) {
       return blockingUnaryCall(
           getChannel(), METHOD_GET_LOGON_INFO, getCallOptions(), request);
     }
@@ -160,8 +153,8 @@ public final class AgentApplicationServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse> getLogonInfo(
-        com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest request) {
+    public com.google.common.util.concurrent.ListenableFuture<AgentApplicationServiceOuterClass.LogonInfoResponse> getLogonInfo(
+        AgentApplicationServiceOuterClass.LogonInfoRequest request) {
       return futureUnaryCall(
           getChannel().newCall(METHOD_GET_LOGON_INFO, getCallOptions()), request);
     }
@@ -187,8 +180,8 @@ public final class AgentApplicationServiceGrpc {
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
         case METHODID_GET_LOGON_INFO:
-          serviceImpl.getLogonInfo((com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoRequest) request,
-              (io.grpc.stub.StreamObserver<com.yoozoo.protoconf.AgentApplicationServiceOuterClass.LogonInfoResponse>) responseObserver);
+          serviceImpl.getLogonInfo((AgentApplicationServiceOuterClass.LogonInfoRequest) request,
+              (io.grpc.stub.StreamObserver<AgentApplicationServiceOuterClass.LogonInfoResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -209,7 +202,7 @@ public final class AgentApplicationServiceGrpc {
   private static final class AgentApplicationServiceDescriptorSupplier implements io.grpc.protobuf.ProtoFileDescriptorSupplier {
     @java.lang.Override
     public com.google.protobuf.Descriptors.FileDescriptor getFileDescriptor() {
-      return com.yoozoo.protoconf.AgentApplicationServiceOuterClass.getDescriptor();
+      return AgentApplicationServiceOuterClass.getDescriptor();
     }
   }
 

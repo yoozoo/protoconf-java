@@ -4,9 +4,9 @@ package com.yoozoo.protoconf;
 // Code generated at 15 Nov 18 10:01 DST, with protoconf version 0.1.8
 // This code is designed to work with protoconf-java (https://github.com/yoozoo/protoconf-java) v1.0
 
-import com.yoozoo.protoconf.ChangeListener;
-import com.yoozoo.protoconf.ConfigurationInterface;
-import com.yoozoo.protoconf.WatchKeyInterface;
+import com.yoozoo.protoconf.reader.ChangeListener;
+import com.yoozoo.protoconf.reader.ConfigurationInterface;
+import com.yoozoo.protoconf.reader.WatchKeyInterface;
 
 import java.util.logging.Logger;
 import java.util.HashMap;

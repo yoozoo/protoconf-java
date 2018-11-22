@@ -1,4 +1,4 @@
-package com.yoozoo.protoconf;
+package com.yoozoo.protoconf.reader;
 
 import com.coreos.jetcd.Client;
 import com.coreos.jetcd.Txn;
@@ -11,6 +11,8 @@ import com.coreos.jetcd.options.WatchOption;
 import com.coreos.jetcd.watch.WatchResponse;
 import com.coreos.jetcd.Watch.Watcher;
 import com.coreos.jetcd.watch.WatchEvent;
+import com.yoozoo.protoconf.agent.AgentApplicationServiceClient;
+import com.yoozoo.protoconf.agent.AgentApplicationServiceOuterClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,7 +211,8 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     public Map<String, String> getValueWithPrefix(String prefix) {
         try {
             connect();
-            GetResponse getResponse = client.getKVClient().get(ByteSequence.fromBytes(prefix.getBytes(UTF8_CHARSET)), GetOption.newBuilder().withPrefix(ByteSequence.fromBytes(prefix.getBytes(UTF8_CHARSET))).build()).get();
+            GetOption getOption = GetOption.newBuilder().withPrefix(ByteSequence.fromBytes((prefix).getBytes(UTF8_CHARSET))).build();
+            GetResponse getResponse = client.getKVClient().get(ByteSequence.fromBytes((prefix).getBytes(UTF8_CHARSET)), getOption).get();
             if (getResponse.getKvs().isEmpty()) {
                 // key does not exist
                 return null;
@@ -218,7 +221,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
             List<KeyValue> keyValueList = getResponse.getKvs();
 
             for (KeyValue keyValue : keyValueList) {
-                keyValues.put(keyValue.getKey().toStringUtf8(), keyValue.getValue().toStringUtf8());
+                keyValues.put(keyValue.getKey().toStringUtf8().substring(prefix.length()).replaceAll("/", "."), keyValue.getValue().toStringUtf8());
             }
             return keyValues;
         } catch (Exception e) {
