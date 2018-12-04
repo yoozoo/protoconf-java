@@ -13,6 +13,11 @@ import com.coreos.jetcd.Watch.Watcher;
 import com.coreos.jetcd.watch.WatchEvent;
 import com.yoozoo.protoconf.agent.AgentApplicationServiceClient;
 import com.yoozoo.protoconf.agent.AgentApplicationServiceOuterClass;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,7 +186,7 @@ public class EtcdReader implements ConfigurationReader.KVReader {
                 try {
                     connect();
                     WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromBytes((envkey + appName + "/").getBytes(UTF8_CHARSET))).build();
-                    watcher = client.getWatchClient().watch(ByteSequence.fromBytes(("").getBytes(UTF8_CHARSET)), watchOption);
+                    watcher = client.getWatchClient().watch(ByteSequence.fromBytes((envkey + appName + "/").getBytes(UTF8_CHARSET)), watchOption);
 
                     while (true) {
                         Map<String, String> changeMap = new HashMap<>();
@@ -208,7 +213,8 @@ public class EtcdReader implements ConfigurationReader.KVReader {
     }
 
     @Override
-    public Map<String, String> getValueWithPrefix(String prefix) {
+    public synchronized Map<String, String> getValueWithPrefix(String prefix) {
+        Map<String, String> keyValues = new HashMap<>();
         try {
             connect();
             GetOption getOption = GetOption.newBuilder().withPrefix(ByteSequence.fromBytes((prefix).getBytes(UTF8_CHARSET))).build();
@@ -217,17 +223,70 @@ public class EtcdReader implements ConfigurationReader.KVReader {
                 // key does not exist
                 return null;
             }
-            Map<String, String> keyValues = new HashMap<>();
             List<KeyValue> keyValueList = getResponse.getKvs();
 
             for (KeyValue keyValue : keyValueList) {
                 keyValues.put(keyValue.getKey().toStringUtf8().substring(prefix.length()).replaceAll("/", "."), keyValue.getValue().toStringUtf8());
             }
-            return keyValues;
         } catch (Exception e) {
+            closeConnection();
             LOGGER.error(e.getLocalizedMessage());
         }
-        return null;
+        return keyValues;
+    }
+
+    public synchronized void watchKeysWithPrefix(String prefix, String callBackUrl) {
+        // start a thread to watch key prefix with app name
+        new Thread(() -> {
+            Watcher watcher = null;
+            try {
+                connect();
+                WatchOption watchOption = WatchOption.newBuilder().withPrefix(ByteSequence.fromBytes((prefix).getBytes(UTF8_CHARSET))).build();
+                watcher = client.getWatchClient().watch(ByteSequence.fromBytes((prefix).getBytes(UTF8_CHARSET)), watchOption);
+
+                LOGGER.info("start to watch keys with prefix: "+prefix);
+                while (true) {
+                    WatchResponse response = watcher.listen();
+                    for (WatchEvent event : response.getEvents()) {
+                        if (event.getEventType().equals(WatchEvent.EventType.PUT)) {
+                            LOGGER.info("key: " +event.getKeyValue().getKey().toStringUtf8() + " 's value has been changed to " + event.getKeyValue().getValue().toStringUtf8());
+//                            send POST request to callBackUrl
+                            CloseableHttpClient httpClient = HttpClients.createDefault();
+                            HttpPost httpPost = new HttpPost(callBackUrl);
+//                          json format request
+                            String json = "{\"path\": \"*\"}";
+                            StringEntity entity = new StringEntity(json);
+                            httpPost.setEntity(entity);
+                            httpPost.setHeader("Accept", "application/json");
+                            httpPost.setHeader("Content-type", "application/json");
+
+                            CloseableHttpResponse httpResponse = httpClient.execute(httpPost);
+                            if (httpResponse.getStatusLine().getStatusCode() != 200) {
+                                LOGGER.error("error response from callBackUrl: " + httpResponse.getStatusLine().getReasonPhrase());
+                            }
+
+                            LOGGER.info("callbackUrl: " + callBackUrl +" has been called.");
+
+                            httpClient.close();
+                        }
+                    }
+
+                }
+
+            } catch (Exception e) {
+                if (watcher != null) {
+                    watcher.close();
+                }
+                closeConnection();
+                LOGGER.error(e.getLocalizedMessage());
+            }
+        }).start();
+    }
+
+    private void closeConnection() {
+        if (client != null) {
+            client.close();
+        }
     }
 
     public void setUserName(String userName) {

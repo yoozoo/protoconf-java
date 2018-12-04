@@ -18,6 +18,8 @@ public class ConfigurationReader {
         void setValue(String key, String value);
 
         Map<String, String> getValueWithPrefix(String prefix);
+
+        void watchKeysWithPrefix(String prefix, String callBackUrl);
     }
 
     private KVReader kv_reader;
@@ -67,4 +69,7 @@ public class ConfigurationReader {
         return kv_reader.getValueWithPrefix(prefix);
     }
 
+    public void watchKeysWithPrefix(String prefix, String callBackUrl) {
+        kv_reader.watchKeysWithPrefix(prefix, callBackUrl);
+    }
 }
